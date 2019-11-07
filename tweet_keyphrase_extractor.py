@@ -64,11 +64,16 @@ for tweet in full_text:
     word_tokens = tokenizer.tokenize(tweet)
     for word in word_tokens:
         if word not in stop_words:
+            temp = word # keeps the full word
             word = porter.stem(word)
             if word not in tf.keys():
                 tf[word] = 1
             else:
                 tf[word] += 1
+
+
+stem_word_map = {}
+
                  
     
 
