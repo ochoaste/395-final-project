@@ -1,6 +1,7 @@
 # CSC-395: Research Project by Steffie Ochoa and Lilya Woodburn
 # Sources:
-# * Code for October 29 class activity 
+# * Code for October 29 class activity
+# https://stackoverflow.com/questions/17038426/splitting-a-string-based-on-tab-in-the-file
 
 
 import os
@@ -26,23 +27,54 @@ def get_file_names(d):
 
 some_files = get_file_names(mypath)
 
-print(some_files)
+#print(some_files) prints the celebrity tweet file names
 
 #read documents
 length = len(some_files)
 index = 0
 
-while index != length:
-    file_index = some_files[index]
-    f = open(mypath + '/' + file_index, 'r')
-    text = f.readlines() # line 0 should say "Date  Number  Tweet"
-    f.close()
+#while index != length:
+file_index = some_files[index]
+f = open(mypath + '/' + file_index, 'r')
+text = f.readlines() # line 0 should say "Date  Number  Tweet"
+f.close()
 
-    #cleaning
-    text = text[1:] # gets rid of line 0, assuming we don't need it
-    print(text, '\n')
-    index += 1
+#cleaning
+text = text[1:] # gets rid of line 0, assuming we don't need it
+#print(text, '\n')
+index += 1
+
+full_text = []
+
+for string in text:
+    temp = re.split(r'\t+', string)
+    temp = temp[2]
+    temp = re.split(r'\n+', temp)
+    temp = temp[0]
+    temp = temp.lower()
+    full_text.append(temp)
+
+tf = {}
+
+tokenizer = RegexpTokenizer(r'\w+')
+stop_words = set(stopwords.words('english'))
+porter = PorterStemmer()
+
+for tweet in full_text:
+    word_tokens = tokenizer.tokenize(tweet)
+    for word in word_tokens:
+        if word not in stop_words:
+            word = porter.stem(word)
+            if word not in tf.keys():
+                tf[word] = 1
+            else:
+                tf[word] += 1
+                 
+    
+
+#print(type(full_text))
+print(tf)
+#print(text)
 
 
-# end of while loop
 
