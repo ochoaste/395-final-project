@@ -13,6 +13,7 @@ import decimal
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet
 from decimal import Decimal
 from os import listdir
 from os.path import isfile, join
@@ -59,27 +60,31 @@ tf = {}
 tokenizer = RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 porter = PorterStemmer()
+thesaurus = {}
 
 for tweet in full_text:
+    # tokenize, stem, and perform tf
     word_tokens = tokenizer.tokenize(tweet)
     for word in word_tokens:
         if word not in stop_words:
-            temp = word # keeps the full word
             word = porter.stem(word)
             if word not in tf.keys():
                 tf[word] = 1
             else:
                 tf[word] += 1
 
-
-stem_word_map = {}
-
-                 
+        # add word as a new thesaurus key 
+        if word not in thesaurus:
+            word_syns = []
+            for syn in wordnet.synsets(word):
+                for l in syn.lemmas():
+                    # writes the lemmatized word to term_syns
+                    # NOTE: bigrams are denoted by an underscore, not a space
+                    word_syns.append(l.name())
+            thesaurus[word] = word_syns
     
 
 #print(type(full_text))
 print(tf)
+print(thesaurus)
 #print(text)
-
-
-
