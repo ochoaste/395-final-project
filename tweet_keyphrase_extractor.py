@@ -56,23 +56,37 @@ for string in text:
     full_text.append(temp)
 
 tf = {}
-
 tokenizer = RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 porter = PorterStemmer()
 thesaurus = {}
+stem_word_map = {}
+#total_tweets = 0
 
 for tweet in full_text:
-    # tokenize, stem, and perform tf
     word_tokens = tokenizer.tokenize(tweet)
+    '''
+# figure out how to calculate idf
+    num_words = len(word_tokens)
+    total_tweets += 1
+    '''
     for word in word_tokens:
         if word not in stop_words:
-            word = porter.stem(word)
-            if word not in tf.keys():
-                tf[word] = 1
+            full_word = word # keeps the full word
+            stem_word = porter.stem(word)
+            if stem_word not in tf.keys():
+                tf[stem_word] = 1
+                stem_word_map[stem_word] = [[full_word, 1]]
             else:
-                tf[word] += 1
-
+                tf[stem_word] += 1
+                found = False
+                for word_list in stem_word_map[stem_word]:
+                    if word_list[0] == full_word:
+                        word_list[1] += 1
+                        found = True
+                if found == False:
+                    stem_word_map[stem_word].append([full_word, 1])
+        '''            
         # add word as a new thesaurus key 
         if word not in thesaurus:
             word_syns = []
@@ -82,9 +96,12 @@ for tweet in full_text:
                     # NOTE: bigrams are denoted by an underscore, not a space
                     word_syns.append(l.name())
             thesaurus[word] = word_syns
-    
-
+ '''
+        
+#print(stem_word_map)
 #print(type(full_text))
-print(tf)
-print(thesaurus)
+#print(tf)
 #print(text)
+
+
+
