@@ -10,6 +10,7 @@ import re
 import nltk
 import string
 import decimal
+import math
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
@@ -55,28 +56,36 @@ for string in text:
     temp = temp.lower()
     full_text.append(temp)
 
-tf = {}
+tf = {} # dict. of term frequencey for each word in all the tweets
 tokenizer = RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 porter = PorterStemmer()
-thesaurus = {}
-stem_word_map = {}
-#total_tweets = 0
+stem_word_map = {} # dict. of stemmed words and the words that stem to it
+total_tweets = 0 
+idf_map = {} # dict. of stemmed words and list of docs that word is in
 
 for tweet in full_text:
-    word_tokens = tokenizer.tokenize(tweet)
-    '''
-# figure out how to calculate idf
-    num_words = len(word_tokens)
     total_tweets += 1
-    '''
+    word_tokens = tokenizer.tokenize(tweet)
+    seen_words = []
+
     for word in word_tokens:
         if word not in stop_words:
+            total_words += 1 
             full_word = word # keeps the full word
             stem_word = porter.stem(word)
+            seen_words.append(stem_word)
+
+            if stem_word not in idf_map:
+                idf_map[stem_word] = [total_tweets]
+                
+            if stem_word not in seen_words:
+                    idf_map[stem_word].append(total_tweets)
+            
             if stem_word not in tf.keys():
                 tf[stem_word] = 1
                 stem_word_map[stem_word] = [[full_word, 1]]
+
             else:
                 tf[stem_word] += 1
                 found = False
@@ -86,8 +95,19 @@ for tweet in full_text:
                         found = True
                 if found == False:
                     stem_word_map[stem_word].append([full_word, 1])
-        '''            
-        # add word as a new thesaurus key 
+idf_values = {}
+
+# creates a map of idf values for each of the words
+for word in idf_map:
+    tD = len(idf_map[word]) # how many documents the word appears in
+    idf = total_tweets / tD 
+    idf_values[word] = math.log(idf)
+
+
+
+'''            
+        # add word as a new thesaurus key
+        thesaurus = {}
         if word not in thesaurus:
             word_syns = []
             for syn in wordnet.synsets(word):
@@ -97,11 +117,12 @@ for tweet in full_text:
                     word_syns.append(l.name())
             thesaurus[word] = word_syns
  '''
-        
+print(idf_values)
 #print(stem_word_map)
 #print(type(full_text))
 #print(tf)
 #print(text)
-
+#print(total_tweets)
+#print(idf_map)
 
 
