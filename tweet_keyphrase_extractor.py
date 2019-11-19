@@ -63,6 +63,7 @@ porter = PorterStemmer()
 stem_word_map = {} # dict. of stemmed words and the words that stem to it
 total_tweets = 0 
 idf_map = {} # dict. of stemmed words and list of docs that word is in
+total_words = 0
 
 for tweet in full_text:
     total_tweets += 1
@@ -71,16 +72,18 @@ for tweet in full_text:
 
     for word in word_tokens:
         if word not in stop_words:
-            total_words += 1 
-            full_word = word # keeps the full word
+            total_words += 1
+            full_word = word # keeps the original word before stemming
             stem_word = porter.stem(word)
-            seen_words.append(stem_word)
-
-            if stem_word not in idf_map:
+            
+            
+            if stem_word not in idf_map.keys():
                 idf_map[stem_word] = [total_tweets]
                 
-            if stem_word not in seen_words:
-                    idf_map[stem_word].append(total_tweets)
+            #if stem_word not in seen_words:
+            else:
+                if stem_word not in seen_words:
+                     idf_map[stem_word].append(total_tweets)
             
             if stem_word not in tf.keys():
                 tf[stem_word] = 1
@@ -95,10 +98,12 @@ for tweet in full_text:
                         found = True
                 if found == False:
                     stem_word_map[stem_word].append([full_word, 1])
+            seen_words.append(stem_word)
+            
 idf_values = {}
 
 # creates a map of idf values for each of the words
-for word in idf_map:
+for word in idf_map.keys():
     tD = len(idf_map[word]) # how many documents the word appears in
     idf = total_tweets / tD 
     idf_values[word] = math.log(idf)
@@ -117,12 +122,22 @@ for word in idf_map:
                     word_syns.append(l.name())
             thesaurus[word] = word_syns
  '''
+'''
+one_percent = round(total_words * 0.01)
+
+most_used_words = []
+while 
+
+for word in idf_values:
+    if idf_values[word] > 
+'''
+#print(total_words)
 print(idf_values)
 #print(stem_word_map)
 #print(type(full_text))
 #print(tf)
 #print(text)
 #print(total_tweets)
-#print(idf_map)
+print(idf_map)
 
 
