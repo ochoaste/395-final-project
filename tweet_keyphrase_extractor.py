@@ -56,7 +56,7 @@ for string in text:
     temp = temp.lower()
     full_text.append(temp)
 
-tf = {} # dict. of term frequencey for each word in all the tweets
+tf = {} # dict. of term frequency for each stemmed word in all the tweets
 tokenizer = RegexpTokenizer(r'\w+')
 stop_words = set(stopwords.words('english'))
 porter = PorterStemmer()
@@ -72,7 +72,7 @@ for tweet in full_text:
 
     for word in word_tokens:
         if word not in stop_words:
-            total_words += 1
+            total_words += 1 # this will be used later to normalize tf
             full_word = word # keeps the original word before stemming
             stem_word = porter.stem(word)
             
@@ -99,6 +99,18 @@ for tweet in full_text:
                 if found == False:
                     stem_word_map[stem_word].append([full_word, 1])
             seen_words.append(stem_word)
+
+
+
+''' added for norm_tf (beginning, 1/2) '''
+norm_tf = tf
+
+# creates a new dictionary of normalized term frequencies
+for term in norm_tf:
+    norm_tf[term] /= total_words
+
+# print(norm_tf)
+''' added for norm_tf (end, 1/2) '''
             
 idf_values = {}
 
@@ -107,6 +119,22 @@ for word in idf_map.keys():
     tD = len(idf_map[word]) # how many documents the word appears in
     idf = total_tweets / tD 
     idf_values[word] = math.log(idf)
+
+''' added for norm_tf (beginning, 2/2) '''
+tf_idf = {}
+results_of_tf_idf = []
+
+# creates a new map of the tf-idf scores for each word
+for word in idf_values.keys():
+    tf_idf[word] = norm_tf[word] * idf_values[word]
+    #print(tf_idf[word])
+    if tf_idf[word] not in results_of_tf_idf:
+        results_of_tf_idf.append(tf_idf[word])
+
+print(results_of_tf_idf)
+print(len(results_of_tf_idf))
+''' added for norm_tf (end, 2/2) '''
+
 
 
 
@@ -121,23 +149,19 @@ for word in idf_map.keys():
                     # NOTE: bigrams are denoted by an underscore, not a space
                     word_syns.append(l.name())
             thesaurus[word] = word_syns
- '''
-'''
-one_percent = round(total_words * 0.01)
 
+one_percent = round(total_words * 0.01)
 most_used_words = []
 while 
-
 for word in idf_values:
     if idf_values[word] > 
 '''
+
 #print(total_words)
-print(idf_values)
+#print(idf_values)
 #print(stem_word_map)
 #print(type(full_text))
 #print(tf)
 #print(text)
 #print(total_tweets)
-print(idf_map)
-
-
+#print(idf_map)
