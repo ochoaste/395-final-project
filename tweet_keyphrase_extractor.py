@@ -1,4 +1,4 @@
-# CSC-395: Research Project by Steffie Ochoa and Lilya Woodburn
+ # CSC-395: Research Project by Steffie Ochoa and Lilya Woodburn
 # Sources:
 # * Code for October 29 class activity
 # https://stackoverflow.com/questions/17038426/splitting-a-string-based-on-tab-in-the-file
@@ -106,13 +106,13 @@ for tweet in full_text:
     # begin TR co-occurrence dict building from cleaned tweet
     
     end = 0 
-    seen_words_length = end-1
+    seen_words_length = len(seen_words)-1
     
     while end != seen_words_length:
         # set up new co-occurrence range of word0, word1, word2
         start = 0
         end = start + 3 # must be + 3 because sectioning is not inclusive
-        sub_list = seen_words[start:end]
+        sub_list = seen_words[start:end] 
         position = 0
         
         while position != 3:
@@ -122,40 +122,80 @@ for tweet in full_text:
                     co_occurrence[sub_list[0]] = [[sub_list[1],1],
                                                   [sub_list[2],1]]
 
-                # otherwise, make sure existing entry has sublist's values
+                # otherwise, determine if existing entry has sublist's values
                 else:
-                    found = False
+                    found_1 = False
+                    found_2 = False
                     for lists in co_occurrence[sub_list[0]]:
                         # denotes cases where word1 and/or word2 are found
                         if lists[0] == sub_list[1]:
                             lists[1] += 1
-                            found = True
+                            found_1 = True
                             
                         if lists[0] == sub_list[2]:
                             lists[1] += 1
-                            found = True
-                            
-                    if found == False:
-                        co_occurrrence[sub_list[0]].append([sub_list[1],1]) 
-                            
-        
-for word_list in stem_word_map[stem_word]:
-                    if word_list[0] == full_word:
-                        word_list[1] += 1
-                        found = True
-                if found == False:
-                    stem_word_map[stem_word].append([full_word, 1])    
-        
-''' added for norm_tf (beginning, 1/2) '''
-norm_tf = tf
+                            found_2 = True
 
-# creates a new dictionary of normalized term frequencies
-for term in norm_tf:
-    norm_tf[term] /= total_words
+                    # adds word 1 or word 2 if not found        
+                    if found_1 == False:
+                        co_occurrence[sub_list[0]].append([sub_list[1],1])
 
-# print(norm_tf)
-''' added for norm_tf (end, 1/2) '''
+                    if found_2 == False:
+                        co_occurrence[sub_list[0]].append([sub_list[2],1])
+
+            if position == 1:
+                if sub_list[1] not in co_occurrence.keys():
+                    co_occurence[sub_list[1]] = [[sub_list[0],1],
+                                                 [sub_list[2],1]]
+                    
+                else:
+                    found_0 = False
+                    found_2 = False
+                    for lists in co_occurrence[sub_list[0]]:
+                        # denotes cases where word1 and/or word2 are found
+                        if lists[0] == sub_list[0]:
+                            lists[1] += 1
+                            found_0 = True
+                            
+                        if lists[0] == sub_list[2]:
+                            lists[1] += 1
+                            found_2 = True
+
+                    # adds word 1 or word 2 if not found        
+                    if found_0 == False:
+                        co_occurrence[sub_list[0]].append([sub_list[0],1])
+
+                    if found_2 == False:
+                        co_occurrence[sub_list[0]].append([sub_list[2],1])
         
+            if position == 2:
+                if sub_list[2] not in co_occurrence.keys():
+                    co_occurence[sub_list[1]] = [[sub_list[0],1],
+                                                 [sub_list[1],1]]
+                    
+                else:
+                    found_0 = False
+                    found_1 = False
+                    for lists in co_occurrence[sub_list[0]]:
+                        # denotes cases where word1 and/or word2 are found
+                        if lists[0] == sub_list[0]:
+                            lists[1] += 1
+                            found_0 = True
+                            
+                        if lists[0] == sub_list[1]:
+                            lists[1] += 1
+                            found_1 = True
+
+                    # adds word 1 or word 2 if not found        
+                    if found_0 == False:
+                        co_occurrence[sub_list[0]].append([sub_list[0],1])
+
+                    if found_1 == False:
+                        co_occurrence[sub_list[0]].append([sub_list[1],1])
+        end += 1 
+
+        
+            
 idf_values = {}
 
 # creates a map of idf values for each of the words
@@ -163,22 +203,7 @@ for word in idf_map.keys():
     tD = len(idf_map[word]) # how many documents the word appears in
     idf = total_tweets / tD 
     idf_values[word] = math.log(idf)
-    
 
-''' added for norm_tf (beginning, 2/2) '''
-tf_idf = {}
-results_of_tf_idf = []
-
-# creates a new map of the tf-idf scores for each word
-for word in idf_values.keys():
-    tf_idf[word] = norm_tf[word] * idf_values[word]
-    #print(tf_idf[word])
-    if tf_idf[word] not in results_of_tf_idf:
-        results_of_tf_idf.append(tf_idf[word])
-
-print(results_of_tf_idf)
-print(len(results_of_tf_idf))
-''' added for norm_tf (end, 2/2) '''
 
 '''            
         # add word as a new thesaurus key
