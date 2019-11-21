@@ -195,7 +195,16 @@ for tweet in full_text:
         end += 1 
 
         
-            
+''' added for norm_tf (beginning, 1/2) '''
+norm_tf = tf
+
+# creates a new dictionary of normalized term frequencies
+for term in norm_tf:
+    norm_tf[term] /= total_words
+
+# print(norm_tf)
+''' added for norm_tf (end, 1/2) '''
+        
 idf_values = {}
 
 # creates a map of idf values for each of the words
@@ -203,6 +212,22 @@ for word in idf_map.keys():
     tD = len(idf_map[word]) # how many documents the word appears in
     idf = total_tweets / tD 
     idf_values[word] = math.log(idf)
+    
+
+''' added for norm_tf (beginning, 2/2) '''
+tf_idf = {}
+results_of_tf_idf = []
+
+# creates a new map of the tf-idf scores for each word
+for word in idf_values.keys():
+    tf_idf[word] = norm_tf[word] * idf_values[word]
+    #print(tf_idf[word])
+    if tf_idf[word] not in results_of_tf_idf:
+        results_of_tf_idf.append(tf_idf[word])
+
+print(results_of_tf_idf)
+print(len(results_of_tf_idf))
+''' added for norm_tf (end, 2/2) '''
 
 
 '''            
