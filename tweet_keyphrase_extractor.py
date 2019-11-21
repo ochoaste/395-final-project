@@ -67,7 +67,7 @@ total_words = 0
 
 window_size = 3
 
-co_occurrence = {} # dict to keep word co-occurances to build TR graph
+co_occurrence = {} # dict to keep word co-occurrences to build TR graph
 
 for tweet in full_text:
     total_tweets += 1
@@ -104,95 +104,122 @@ for tweet in full_text:
 
 
     # begin TR co-occurrence dict building from cleaned tweet
+
+    '''TODO: once the code works, refactor into an expression'''
     
-    end = 0 
+    finish = 0 
     seen_words_length = len(seen_words)-1
+    start = 0
+
+    print("seen: ", seen_words)
     
-    while end != seen_words_length:
+    while finish != seen_words_length:
         # set up new co-occurrence range of word0, word1, word2
-        start = 0
         end = start + 3 # must be + 3 because sectioning is not inclusive
         sub_list = seen_words[start:end] 
         position = 0
+        current = 0
         
         while position != 3:
+            current = sub_list[position]
+
+            # word 0, i.e. when current = sub_list[0]
             if position == 0:
                 # create new dictionary entry if it doesn't exist yet
-                if sub_list[0] not in co_occurrence.keys():
-                    co_occurrence[sub_list[0]] = [[sub_list[1],1],
-                                                  [sub_list[2],1]]
+                if current not in co_occurrence.keys():
+                    co_occurrence[current] = [[sub_list[1],1], [sub_list[2],1]]
+                    print(co_occurrence[current])
+                    print("Added current to co_occurrence.keys, position = 0")
 
                 # otherwise, determine if existing entry has sublist's values
                 else:
                     found_1 = False
                     found_2 = False
-                    for lists in co_occurrence[sub_list[0]]:
-                        # denotes cases where word1 and/or word2 are found
-                        if lists[0] == sub_list[1]:
+                    word1 = sub_list[1]
+                    word2 = sub_list[2]
+                    for lists in co_occurrence[current]:
+                        # denotes cases where word 1 and/or word 2 are found
+                        if lists[0] == word1:
                             lists[1] += 1
+                            print(lists[1],"current = word0, lists[1] = word1")
                             found_1 = True
                             
-                        if lists[0] == sub_list[2]:
+                        if lists[0] == word2:
                             lists[1] += 1
+                            print(lists[1],"current = word0, lists[1] = word2")
                             found_2 = True
 
                     # adds word 1 or word 2 if not found        
                     if found_1 == False:
-                        co_occurrence[sub_list[0]].append([sub_list[1],1])
+                        co_occurrence[current].append([sub_list[1],1])
 
                     if found_2 == False:
-                        co_occurrence[sub_list[0]].append([sub_list[2],1])
+                        co_occurrence[current].append([sub_list[2],1])
 
+            # word 1, i.e. when current = sub_list[1]
             if position == 1:
-                if sub_list[1] not in co_occurrence.keys():
-                    co_occurence[sub_list[1]] = [[sub_list[0],1],
-                                                 [sub_list[2],1]]
+                if current not in co_occurrence.keys():
+                    co_occurrence[current] = [[sub_list[0],1], [sub_list[2],1]]
+                    print(co_occurrence[current])
+                    print("Added current to co_occurrence.keys, position = 1")
                     
                 else:
                     found_0 = False
                     found_2 = False
-                    for lists in co_occurrence[sub_list[0]]:
-                        # denotes cases where word1 and/or word2 are found
-                        if lists[0] == sub_list[0]:
+                    word0 = sub_list[0]
+                    word2 = sub_list[2]
+                    for lists in co_occurrence[current]:
+                        # denotes cases where word 0 and/or word 2 are found
+                        if lists[0] == word0:
                             lists[1] += 1
+                            print(lists[1],"current = word1, lists[1] = word0")
                             found_0 = True
                             
-                        if lists[0] == sub_list[2]:
+                        if lists[0] == word2:
                             lists[1] += 1
+                            print(lists[1],"current = word1, lists[1] = word2")
                             found_2 = True
 
-                    # adds word 1 or word 2 if not found        
+                    # adds word 0 or word 2 if not found        
                     if found_0 == False:
-                        co_occurrence[sub_list[0]].append([sub_list[0],1])
+                        co_occurrence[current].append([sub_list[0],1])
 
                     if found_2 == False:
-                        co_occurrence[sub_list[0]].append([sub_list[2],1])
-        
+                        co_occurrence[current].append([sub_list[2],1])
+
+            # word 2, i.e. when current = sub_list[2]
             if position == 2:
-                if sub_list[2] not in co_occurrence.keys():
-                    co_occurence[sub_list[1]] = [[sub_list[0],1],
-                                                 [sub_list[1],1]]
+                if current not in co_occurrence.keys():
+                    co_occurrence[current] = [[sub_list[0],1], [sub_list[1],1]]
+                    print(co_occurrence[current])
+                    print("Added current to co_occurrence.keys, position = 2")
                     
                 else:
                     found_0 = False
                     found_1 = False
-                    for lists in co_occurrence[sub_list[0]]:
-                        # denotes cases where word1 and/or word2 are found
-                        if lists[0] == sub_list[0]:
+                    word0 = sub_list[0]
+                    word1 = sub_list[1]
+                    for lists in co_occurrence[current]:
+                        # denotes cases where word 0 and/or word 1 are found
+                        if lists[0] == word0:
                             lists[1] += 1
+                            print(lists[1],"current = word2, lists[1] = word0")
                             found_0 = True
                             
-                        if lists[0] == sub_list[1]:
+                        if lists[0] == word1:
                             lists[1] += 1
+                            print(lists[1],"current = word2, lists[1] = word1")
                             found_1 = True
 
-                    # adds word 1 or word 2 if not found        
+                    # adds word 0 or word 1 if not found        
                     if found_0 == False:
-                        co_occurrence[sub_list[0]].append([sub_list[0],1])
+                        co_occurrence[current].append([sub_list[0],1])
 
                     if found_1 == False:
-                        co_occurrence[sub_list[0]].append([sub_list[1],1])
-        end += 1 
+                        co_occurrence[current].append([sub_list[1],1])
+            position += 1
+        start += 1
+        finish += 1 
 
         
 ''' added for norm_tf (beginning, 1/2) '''
@@ -244,10 +271,8 @@ print(len(results_of_tf_idf))
  '''
 '''
 one_percent = round(total_words * 0.01)
-
 most_used_words = []
 while 
-
 for word in idf_values:
     if idf_values[word] > 
 '''
@@ -259,5 +284,3 @@ for word in idf_values:
 #print(text)
 #print(total_tweets)
 #print(idf_map)
-
-
