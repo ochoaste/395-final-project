@@ -65,9 +65,8 @@ total_tweets = 0
 idf_map = {} # dict. of stemmed words and list of docs that word is in
 total_words = 0
 
-window_size = 3
-
 co_occurrence = {} # dict to keep word co-occurrences to build TR graph
+window_size = 3
 
 for tweet in full_text:
     total_tweets += 1
@@ -102,126 +101,39 @@ for tweet in full_text:
                     stem_word_map[stem_word].append([full_word, 1])
             seen_words.append(stem_word)
 
-
     # begin TR co-occurrence dict building from cleaned tweet
+    if len(seen_words) > 3: 
+        for i in range(len(seen_words)):
+            w = seen_words[i]
+            
+            if i == 0:
+                neighbors = [seen_words[i+1], seen_words[i+2]]
+            
+            elif i == len(seen_words) -1:
+                neighbors = [seen_words[i-1], seen_words[i-2]]
+            
+            else:
+                neighbors = [seen_words[i-1], seen_words[i+1]]
+                #print(w)
+                #print('neighbors: ', neighbors)
 
-    '''TODO: once the code works, refactor into an expression'''
-    
-    finish = 0 
-    seen_words_length = len(seen_words)-1
-    start = 0
-
-    print("seen: ", seen_words)
-    
-    while finish != seen_words_length:
-        # set up new co-occurrence range of word0, word1, word2
-        end = start + 3 # must be + 3 because sectioning is not inclusive
-        sub_list = seen_words[start:end] 
-        position = 0
-        current = 0
-        
-        while position != 3:
-            current = sub_list[position]
-
-            # word 0, i.e. when current = sub_list[0]
-            if position == 0:
-                # create new dictionary entry if it doesn't exist yet
-                if current not in co_occurrence.keys():
-                    co_occurrence[current] = [[sub_list[1],1], [sub_list[2],1]]
-                    print(co_occurrence[current])
-                    print("Added current to co_occurrence.keys, position = 0")
-
-                # otherwise, determine if existing entry has sublist's values
-                else:
-                    found_1 = False
-                    found_2 = False
-                    word1 = sub_list[1]
-                    word2 = sub_list[2]
-                    for lists in co_occurrence[current]:
-                        # denotes cases where word 1 and/or word 2 are found
-                        if lists[0] == word1:
-                            lists[1] += 1
-                            print(lists[1],"current = word0, lists[1] = word1")
-                            found_1 = True
-                            
-                        if lists[0] == word2:
-                            lists[1] += 1
-                            print(lists[1],"current = word0, lists[1] = word2")
-                            found_2 = True
-
-                    # adds word 1 or word 2 if not found        
-                    if found_1 == False:
-                        co_occurrence[current].append([sub_list[1],1])
-
-                    if found_2 == False:
-                        co_occurrence[current].append([sub_list[2],1])
-
-            # word 1, i.e. when current = sub_list[1]
-            if position == 1:
-                if current not in co_occurrence.keys():
-                    co_occurrence[current] = [[sub_list[0],1], [sub_list[2],1]]
-                    print(co_occurrence[current])
-                    print("Added current to co_occurrence.keys, position = 1")
-                    
-                else:
-                    found_0 = False
-                    found_2 = False
-                    word0 = sub_list[0]
-                    word2 = sub_list[2]
-                    for lists in co_occurrence[current]:
-                        # denotes cases where word 0 and/or word 2 are found
-                        if lists[0] == word0:
-                            lists[1] += 1
-                            print(lists[1],"current = word1, lists[1] = word0")
-                            found_0 = True
-                            
-                        if lists[0] == word2:
-                            lists[1] += 1
-                            print(lists[1],"current = word1, lists[1] = word2")
-                            found_2 = True
-
-                    # adds word 0 or word 2 if not found        
-                    if found_0 == False:
-                        co_occurrence[current].append([sub_list[0],1])
-
-                    if found_2 == False:
-                        co_occurrence[current].append([sub_list[2],1])
-
-            # word 2, i.e. when current = sub_list[2]
-            if position == 2:
-                if current not in co_occurrence.keys():
-                    co_occurrence[current] = [[sub_list[0],1], [sub_list[1],1]]
-                    print(co_occurrence[current])
-                    print("Added current to co_occurrence.keys, position = 2")
-                    
-                else:
-                    found_0 = False
-                    found_1 = False
-                    word0 = sub_list[0]
-                    word1 = sub_list[1]
-                    for lists in co_occurrence[current]:
-                        # denotes cases where word 0 and/or word 1 are found
-                        if lists[0] == word0:
-                            lists[1] += 1
-                            print(lists[1],"current = word2, lists[1] = word0")
-                            found_0 = True
-                            
-                        if lists[0] == word1:
-                            lists[1] += 1
-                            print(lists[1],"current = word2, lists[1] = word1")
-                            found_1 = True
-
-                    # adds word 0 or word 1 if not found        
-                    if found_0 == False:
-                        co_occurrence[current].append([sub_list[0],1])
-
-                    if found_1 == False:
-                        co_occurrence[current].append([sub_list[1],1])
-            position += 1
-        start += 1
-        finish += 1 
-
-        
+            if w in co_occurrence.keys():
+                already_neighbors = co_occurrence[w]
+            
+                for n in neighbors:
+                
+                    if n in already_neighbors.keys():
+                        co_occurrence[w][n] += 1
+                
+                    else:
+                       co_occurrence[w][n] = 1
+                
+            else:
+                 co_occurrence[w] = {}
+                
+                 for n in neighbors:
+                     co_occurrence[w][n] = 1
+            
 ''' added for norm_tf (beginning, 1/2) '''
 norm_tf = tf
 
@@ -240,8 +152,6 @@ for word in idf_map.keys():
     idf = total_tweets / tD 
     idf_values[word] = math.log(idf)
     
-
-''' added for norm_tf (beginning, 2/2) '''
 tf_idf = {}
 results_of_tf_idf = []
 
@@ -249,15 +159,56 @@ results_of_tf_idf = []
 for word in idf_values.keys():
     tf_idf[word] = norm_tf[word] * idf_values[word]
     #print(tf_idf[word])
-    if tf_idf[word] not in results_of_tf_idf:
-        results_of_tf_idf.append(tf_idf[word])
-
-print(results_of_tf_idf)
-print(len(results_of_tf_idf))
-''' added for norm_tf (end, 2/2) '''
+    #if tf_idf[word] not in results_of_tf_idf:
+     #  results_of_tf_idf.append(tf_idf[word])
 
 
-'''            
+# Text-Rank Work
+d = 0.85 # the damping factor
+
+runs = 5 # how many times to run the algorithmn 
+
+# initialization
+old_rank = tf_idf
+#print(old_rank)
+new_rank = tf_idf
+
+def neighbor_weight (word_neighbor):
+    old_rank_val = old_rank[word_neighbor]
+    fraction = len(co_occurrence[word_neighbor]) / sum(co_occurrence[word_neighbor].values())
+    return old_rank_val * fraction
+
+for i in range(runs): 
+
+    for word in co_occurrence.keys():
+        summation = 0
+         
+        for key in co_occurrence[word]: # acceses the dict attached to the word in the co-occurrance dict
+             summation += neighbor_weight(key)
+
+        new_rank[word] = (1 - d) + d * summation
+
+    old_rank = new_rank
+
+
+
+
+#print(total_words)
+#print(idf_values)
+#print(stem_word_map)
+#print(type(full_text))
+#print(tf)
+#print(text)
+#print(total_tweets)
+#print(idf_map)
+#print(results_of_tf_idf)
+#print(tf_idf)
+#print(len(results_of_tf_idf))
+#print(co_occurrence)
+print(new_rank)
+
+'''
+Thesaurus Work ---- 
         # add word as a new thesaurus key
         thesaurus = {}
         if word not in thesaurus:
@@ -276,11 +227,3 @@ while
 for word in idf_values:
     if idf_values[word] > 
 '''
-#print(total_words)
-#print(idf_values)
-#print(stem_word_map)
-#print(type(full_text))
-#print(tf)
-#print(text)
-#print(total_tweets)
-#print(idf_map)
