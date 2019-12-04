@@ -191,8 +191,24 @@ for i in range(runs):
     old_rank = new_rank
 
 
+percent = 0.05
+
+top_word_amount = round(total_words * percent)
+
+top_stemmed_words = []
 
 
+for key, value in sorted(new_rank.items(), key = lambda item: item[1]):
+    top_stemmed_words.append(key)
+    
+
+
+print(top_stemmed_words)  
+#top_stemmed_words = ranked_stemmed_words[:top_word_amount]
+
+#print(top_stemmed_words)
+#print(top_stemmed_words)   
+#print(top_word_amount)
 #print(total_words)
 #print(idf_values)
 #print(stem_word_map)
@@ -205,7 +221,7 @@ for i in range(runs):
 #print(tf_idf)
 #print(len(results_of_tf_idf))
 #print(co_occurrence)
-print(new_rank)
+#print(new_rank)
 
 '''
 Thesaurus Work ---- 
