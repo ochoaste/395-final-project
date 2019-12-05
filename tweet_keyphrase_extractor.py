@@ -1,4 +1,5 @@
- # CSC-395: Research Project by Steffie Ochoa and Lilya Woodburn
+
+# CSC-395: Research Project by Steffie Ochoa and Lilya Woodburn
 # Sources:
 # * Code for October 29 class activity
 # https://stackoverflow.com/questions/17038426/splitting-a-string-based-on-tab-in-the-file
@@ -168,15 +169,17 @@ d = 0.85 # the damping factor
 
 runs = 5 # how many times to run the algorithmn 
 
-# initialization
+
+
+# initialization as dicts
 old_rank = tf_idf
-#print(old_rank)
 new_rank = tf_idf
 
 def neighbor_weight (word_neighbor):
     old_rank_val = old_rank[word_neighbor]
     fraction = len(co_occurrence[word_neighbor]) / sum(co_occurrence[word_neighbor].values())
     return old_rank_val * fraction
+
 
 for i in range(runs): 
 
@@ -191,20 +194,56 @@ for i in range(runs):
     old_rank = new_rank
 
 
-percent = 0.05
-
-top_word_amount = round(total_words * percent)
-
-top_stemmed_words = []
-
+''' WITH DICTIONARY -- unable to sort
 
 for key, value in sorted(new_rank.items(), key = lambda item: item[1]):
     top_stemmed_words.append(key)
+    '''
+
+words_to_sort = []
+
+'''WITH LIST OF LISTS'''
+
+# copies new_rank into a list of lists
+for k,v in new_rank.items():
+    words_to_sort.append([k, v])
+
+# sorts list of lists by each word's rank in descending order
+sorted_words = sorted(words_to_sort, key = lambda x: x[1], reverse = True)
+
+#print("words sorted by rank: ", sorted_words)
+'''
+* This still has issues because although it's sorted in descending numerical
+* order, the ranks of the words themselves keep changing. This means the top
+* number of words changes every time. We're not sure why this is happening.
+'''
+
+# extracts the top percent of stemmed words
+percent = 0.05
+top_word_amount = round(total_words * percent)
+top_stemmed_words = []
+
+sorted_words_no_vals = [lst[0] for lst in sorted_words]
+top_stemmed_words = sorted_words_no_vals[:top_word_amount]    
+
+print("top stemmed words: ", top_stemmed_words)
+
+all_top_words = []
+
+for w in top_stemmed_words:
+    temp = stem_word_map[w]
+    max_num = 0
+    top_word = ""
     
+    for i in temp:
+        if i[1] > max_num:
+            maximum = i
+            top_word = i[0]
 
+    all_top_words.append(top_word)
 
-print(top_stemmed_words)  
-#top_stemmed_words = ranked_stemmed_words[:top_word_amount]
+print(all_top_words)
+
 
 #print(top_stemmed_words)
 #print(top_stemmed_words)   
